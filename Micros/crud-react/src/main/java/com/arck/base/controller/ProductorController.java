@@ -1,7 +1,5 @@
 package com.arck.base.controller;
 
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.arck.base.model.Producto;
@@ -42,13 +41,15 @@ public class ProductorController {
 	}
 
     @PostMapping(value="producto")
-	public ResponseEntity<Mono<Void>> saveProducto(Producto producto) {
+	public ResponseEntity<Mono<Void>> saveProducto(@RequestBody Producto producto) {
 		return new ResponseEntity<>(productosService.saveProducto(producto), HttpStatus.OK);
 	}
 
     @DeleteMapping(value="producto/{code}")
-	public Mono<ResponseEntity<Producto>> removeProducto(@PathVariable int code) {
-    	return productosService.removeProducto(code).map(p-> new ResponseEntity<>(p,HttpStatus.OK)).switchIfEmpty(Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND)));
+	public Mono<ResponseEntity<Void>> removeProducto(@PathVariable int code) {
+    	return productosService.removeProducto(code)
+                .map(product -> new ResponseEntity<Void>(HttpStatus.OK))
+                .switchIfEmpty(Mono.just(new ResponseEntity<Void>(HttpStatus.NOT_FOUND)));
 	}
 
     @PutMapping(value="producto")

@@ -1,4 +1,5 @@
 package com.arck.base.serviceImpl;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class ProductosServiceImpl implements ProductosService {
 
-	 private static List<Producto> productos = new ArrayList<>(List.of(
+	private static List<Producto> productos = new ArrayList<>(List.of(
 		        new Producto(100, "Cocacola", "Alimentación", 1.60, 60),
 		        new Producto(101, "Leche", "Alimentación", 1.50, 50),
 		        new Producto(102, "Jabón", "Limpieza", 0.93, 93),
@@ -26,7 +27,7 @@ public class ProductosServiceImpl implements ProductosService {
 	 
 	@Override
 	public Flux<Producto> getAll() {
-		return Flux.fromIterable(productos);
+		return Flux.fromIterable(productos).delayElements(Duration.ofMillis(500));
 	}
 
 	@Override
@@ -42,10 +43,12 @@ public class ProductosServiceImpl implements ProductosService {
 
 	@Override
 	public Mono<Void> saveProducto(Producto producto) {
-		return getProductoByCodigo(producto.getCode()).switchIfEmpty(Mono.just(producto).map(p->{
-			productos.add(p);
-			return p;
-		})).then();
+		return getProductoByCodigo(producto.getCode())
+				.switchIfEmpty(Mono.just(producto).map(p->{
+					productos.add(producto);
+					return p;
+				}))
+				.then();
 	}
 
 	@Override
